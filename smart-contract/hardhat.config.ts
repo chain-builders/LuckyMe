@@ -5,17 +5,12 @@ import * as dotenv from "dotenv";
 // Load environment variables from .env file
 dotenv.config();
 
-// Ensure the private key is available
+// Safely get env variables
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
-if (!PRIVATE_KEY) {
-  throw new Error("Please set your PRIVATE_KEY in a .env file");
+const CORE_RPC_URL = process.env.RPC_URL || "";
+if (!PRIVATE_KEY || !CORE_RPC_URL) {
+  throw new Error("Please set your PRIVATE_KEY and RPC_URL in a .env file");
 }
-
-// RPC URL from environment variables
-const RPC_URL = process.env.RPC_URL || "https://sepolia.base.org";
-
-// Optional: Etherscan API key for verification (commented out since it's commented in your .env)
-// const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -28,30 +23,19 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    // Base Sepolia testnet
-    baseSepolia: {
-      url: RPC_URL,
+    // Core DAO Mainnet
+    coredao: {
+      url: CORE_RPC_URL,
       accounts: [PRIVATE_KEY],
-      chainId: 84532, // Base Sepolia chain ID
+      chainId: 1116, // Core DAO Mainnet
     },
-    // You can add more networks here as needed
+    // Optional: Base Sepolia testnet (keep if you're using it)
+    baseSepolia: {
+      url: "https://sepolia.base.org",
+      accounts: [PRIVATE_KEY],
+      chainId: 84532,
+    },
   },
-  // Uncomment when you want to use Etherscan verification
-  // etherscan: {
-  //   apiKey: {
-  //     baseSepolia: ETHERSCAN_API_KEY,
-  //   },
-  //   customChains: [
-  //     {
-  //       network: "baseSepolia",
-  //       chainId: 84532,
-  //       urls: {
-  //         apiURL: "https://api-sepolia.basescan.org/api",
-  //         browserURL: "https://sepolia.basescan.org",
-  //       },
-  //     },
-  //   ],
-  // },
   paths: {
     sources: "./contracts",
     tests: "./test",
